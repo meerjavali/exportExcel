@@ -1,8 +1,8 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-//import TableToExcel from "@linways/table-to-excel";
-import { downloadTableAsExcel, tableToFile } from 'html-table-to-excel.ts';
-import * as xls from 'xlsx';
-import ExcellentExport from 'excellentexport';
+import { FormArray, FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { ValidationService } from './validation.service';
+import { formatCurrency } from '@angular/common';
+
 
 
 
@@ -12,46 +12,83 @@ import ExcellentExport from 'excellentexport';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'tableExcel';
-  data=[1,2,3,4,5];
- @ViewChild('table') table !:ElementRef;
- //table = document.querySelector('table1')
+form1 = new FormGroup({
+  "name1": new FormControl("meer", [Validators.required, Validators.minLength(4), ValidationService.onlyAlphabets]),
+  "address1": new FormGroup({
+    "address2": new FormControl(),
+    "address3": new FormControl()
+  }),
+  "skill": new FormArray([new FormControl()])
+})
 
-  onClick(){
-    console.log(this.table);
-   var id = document.getElementById('table1');
-   
-   
-  // downloadTableAsExcel(this.table.nativeElement, 'data.xls');
+onSubmit(){
+  console.log("the form object is", this.form1);
 
-   const workbook = xls.utils.table_to_book(this.table.nativeElement);
-   const ROW_HEIGHT = 50;
-   var ws = workbook.Sheets[workbook.SheetNames[0]];
-   var LEVEL = 1;
-   console.log(ws["A1"]);
-   ws["A1"].s =  {      
-  font: {
-    name: '宋体',
-    sz: 24,
-    bold: true,
-    color: { rgb: "FFAA00" }
-  },
-};
+  console.log("only form values", this.form1.value);
 
-/* Excel sixth row -> SheetJS row index 6 - 1 = 5 */
-var ROW_INDEX = 2;
-
-/* create !rows array if it does not exist */
-if(!ws["!rows"]) ws["!rows"] = [];
-
-/* create row metadata object if it does not exist */
-if(!ws["!rows"][ROW_INDEX]) ws["!rows"][ROW_INDEX] = {hpx: 30};
-
-/* set level */
-ws["!rows"][ROW_INDEX].level = LEVEL;
-
-   xls.writeFile(workbook, 'file.xlsx');
+  this.form1.patchValue({
+    "name1": "happy",
+  "address1": {
+    "address2": "happy place1",
+    "address3": "happy place2"
 
   }
 
+})
+this.form1.setValue({
+  "name1": "sad",
+"address1": {
+  "address2": "sad place1",
+  "address3": "sad place2"
+
+},
+ "skill": ['c','java','python']
+
+})
+
 }
+
+onreset(){
+  this.form1.reset();
+}
+get nam1(){
+  return this.form1.controls['name1'];
+}
+
+
+get skills(){// we got the control of skill form control 
+  return this.form1.controls['skill'] as FormArray;
+}
+
+onAddSkill(){
+  this.skills.push(new FormControl()); // we are pushing new formControl
+}
+onRemove(key){
+  this.skills.removeAt(key);
+}
+
+
+onkeyboard(event1){
+  
+  const charCode = event1.which?event1.which:event1.keyCode;
+  this.form1.controls['name1']
+  if(charCode > 47 && charCode <58){
+    this.form1.controls['name1'].setErrors({invalidEntry:true});
+    return false;
+
+  }
+  else{
+    return true;
+  }
+
+}
+}
+
+
+// learnt on 27/06
+// 1. create basic reactive form
+// 2. add basic validators like RequiredValidator, milenght 
+// 3. custom Validators
+// 4. keypress event not related to reactive Forms but usefeul
+// 5. form array used to update the form--
+// 6. nested form groups

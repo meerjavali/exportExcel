@@ -1,8 +1,27 @@
-<table id="table1" #table >
-  <tr *ngFor="let i of data">
-    <td data-wch="50">check the value {{i}}</td>
-    <td data-wch="50">check the value {{i+1}}</td>
-  </tr>
-</table>
+<form [formGroup]="form1" (ngSubmit)="onSubmit()">
+  <div>
+    <label>name</label>
+    <input type="text" formControlName="name1" (keypress) ="onkeyboard($event)" [ngStyle]="{'border-color':nam1.hasError('invalidInput')?'red':'black'}"> 
+    <!-- //ng style for conditionally applying styles. -->
+    <span *ngIf="nam1.hasError('invalidInput')" style="color:red; "> please enter onlyalphabets details</span>
+    <span *ngIf="nam1.hasError('invalidEntry')">dont enter numericals</span> 
+  </div>
+  
+  <div formGroupName="address1">
+    <label>address</label>
+    <input type="text" formControlName="address2"> | 
+    <input type="text" placeholder="addresss 3" formControlName="address3">
+  </div>
 
-<button (click)="onClick()">export</button>
+  <div formArrayName="skill">
+    <label>skills</label>
+    <div *ngFor="let item of skills.controls; let i=index" >
+      <input type="text" [formControlName]="i" >
+      <span><button type="button" (click)="onRemove(i)">remove skill </button></span>
+    </div> 
+  </div>
+  <button type="button" (click)="onAddSkill()">add skill</button> |
+
+  <button type="submit">submit</button> | 
+  <button type="button" (click)="onreset()">reset</button>
+</form>
